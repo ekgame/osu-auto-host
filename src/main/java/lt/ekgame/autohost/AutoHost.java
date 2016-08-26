@@ -22,12 +22,16 @@ public class AutoHost {
 	public BeatmapHandler beatmaps = new BeatmapHandler("beatmaps");
 	public RoomHandler roomHandler;
 	public Settings settings;
+	
+	public static AutoHost instance;
 
 	public AutoHost(String... args) throws IOException, URISyntaxException, LoginException, ObjectMappingException {
 		if (args.length == 0) {
 			System.err.println("You must specify a settings file.");
 			return;
 		}
+		
+		instance = this;
 		
 		settings = new Settings(args[0]);
 		perms = new Permissions(settings.operatorIds);
@@ -42,6 +46,8 @@ public class AutoHost {
 				MultiplayerHandler mp = bancho.getMultiplayerHandler();
 				mp.enableMultiplayer();
 				mp.createRoom(settings.roomName, settings.roomPassword, settings.roomSlots);
+				if (settings.freemodsEnabled)
+					mp.setFreeMods(true);
 			}
 			if (packet instanceof PacketRoomJoined) {
 				System.out.println("Room created!");

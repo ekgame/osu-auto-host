@@ -66,6 +66,22 @@ public class CommandsRoom implements CommandExecutor {
 			}
 		}
 		
+		if (label.equals("freemods") && bot.perms.isOperator(userId)) {
+			if (mp.isHost()) {
+				mp.setFreeMods(!mp.isFreeModsEnabled());
+			}
+		}
+		
+		if (label.equals("start") && bot.perms.isOperator(userId)) {
+			if (mp.isHost()) {
+				mp.startGame();
+			}
+		}
+		
+		if (label.equals("info")) {
+			bot.bancho.sendMessage(channel, AutoHost.instance.settings.infoText);
+		}
+		
 		if (label.equals("add") && args.size() > 0) {
 			Matcher matcher = beatmapMatcher.matcher(args.get(0));
 			if (matcher.find()) {
@@ -81,8 +97,24 @@ public class CommandsRoom implements CommandExecutor {
 							double difficulty = obj.getDouble("difficultyrating");
 							int length = obj.getInt("total_length");
 							int mode = obj.getInt("mode");
-							if (mode != 0 || approval > 3 || approval < 0 || difficulty < 4.8 || difficulty > 6 || length > 360) {
-								bot.bancho.sendMessage(channel, sender + ": The beatmap doesn't match the criteria. PM me !help for more information.");
+							
+							Settings settings = AutoHost.instance.settings;
+							boolean matchingGamemode = mode == settings.gamemode;
+							boolean matchingDifficulty = difficulty >= settings.minDifficulty && difficulty <= settings.maxDifficulty;
+							boolean matchingLength = length <= settings.maxLength;
+							boolean matchingApproval = settings.allowGraveyard ? true : (approval >= 0 &&  approval <= 2);
+							
+							if (!matchingGamemode) {
+								bot.bancho.sendMessage(channel, sender + ": This gamemode is not allowed.");
+							}
+							else if (!matchingDifficulty) {
+								bot.bancho.sendMessage(channel, sender + ": Invalid difficulty. Must be between " + settings.minDifficulty + " and " + settings.maxDifficulty + ".");
+							}
+							else if (!matchingLength) {
+								bot.bancho.sendMessage(channel, sender + ": This map is too long.");
+							}
+							else if (!matchingApproval) {
+								bot.bancho.sendMessage(channel, sender + ": Graveyarded maps not allowed.");
 							}
 							else {
 								String title = obj.getString("title");

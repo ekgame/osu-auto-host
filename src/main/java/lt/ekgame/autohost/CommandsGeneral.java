@@ -56,8 +56,8 @@ public class CommandsGeneral implements CommandExecutor {
 			}
 			mp.createRoom(roomName, null, 16);
 		}*/
-		if (label.equals("help")) {
-			bot.bancho.sendMessage(sender, "For more information about me, please visit my [https://bitbucket.org/snippets/ekgame/K8a9r BitBucket page].");
+		if (label.equals("help") || label.equals("info")) {
+			bot.bancho.sendMessage(sender, AutoHost.instance.settings.helpText);
 		}
 	}
 }
